@@ -1,0 +1,165 @@
+import json
+from datetime import date
+from datetime import timedelta
+
+
+class Assignment:
+
+    def __init__(self, course, description, due):
+        self.course = course
+        self.description = description
+        self.due = due
+        delta = due - date.today()
+        self.days = delta.days
+
+    def getDescription(self):
+        return self.description
+
+    def getDue(self):
+        return self.description
+
+    def printAssignment(self):
+        print("\tCourse: " + self.course)
+        print("\tDescription: " + self.description)
+        print("\tDue Date: " + str(self.due))
+        print("\tDue in " + str(self.days) + " day(s)")
+
+    def editAssignment(self):
+        print("(1) Course: " + self.course)
+        print("(2) Description: " + self.description)
+        print("(3) Due Date: " + str(self.due))
+        mode = int(input("What would you like to edit?"))
+        if mode == 1:
+            print("Please type in your new course:\n")
+            course = input()
+            self.course = verify(course)
+        elif mode == 2:
+            print("Please type in your new Description:")
+            description = input()
+            self.description = verify(description)
+        elif mode == 3:
+            print("Please type in your new due date")
+            month = input("Month: ")
+            month = int(verify(month))
+            day = input("Day: ")
+            day = int(verify(day))
+            self.due = date(2022, month, day)
+            delta = self.due - date.today()
+            self.days = delta
+        return
+
+    def toJson(self):
+        return {"course": self.course, "description": self.description, "month": str(self.due.month), "day": str(self.due.month), "days": str(self.days)}
+
+
+def verify(value):
+    while True:
+        print("Your value is: ")
+        print(value)
+        print("Is that correct? Y/N")
+        check = input()
+        if 'y' in check or 'Y' in check:
+            return value
+        else:
+            print("Ok let's try again, what would you like your value to be?")
+            value = input()
+
+
+def makeAssignment():
+    while True:
+        course = input("What course is this assignment for?\n")
+        print("Your input is:\n" + course + "\nIs that correct? y/n")
+        input_check = input()
+        if 'y' in input_check or 'Y' in input_check:
+            break
+    while True:
+        description = input("What is the description for this assignment?\n")
+        print("Your input is:\n" + description + "\nIs that correct? y/n")
+        input_check = input()
+        if 'y' in input_check or 'Y' in input_check:
+            break
+    while True:
+        month = int(input("What month is it due?\n"))
+        day = int(input("What day is it due?\n"))
+        print("Your input is\tMonth: " + str(month) + " Day: " + str(day) + "\nIs that ok? y/n")
+        input_check = input()
+        if 'y' in input_check or 'Y' in input_check:
+            break
+    d = date(2022, month, day)
+    return Assignment(course, description, d)
+
+
+def deleteAssignment(assignments):
+    printAssignments(assignments)
+    toDelete = int(input("Which would you like to delete?")) - 1
+    while True:
+        print("You have selected option " + str(toDelete+1) + " is that correct? (y/n)")
+        check = input("")
+        if 'y' in check or 'Y' in check:
+            break
+        toDelete = int(input("Which would you like to delete?")) - 1
+    assignments.pop(toDelete)
+    return assignments
+
+
+def printAssignments(assignments):
+    print("\n\n\n\n\n\n\n\n\n\n")
+    for i in range(len(assignments)):
+        print(i+1)
+        assignments[i].printAssignment()
+    return
+
+
+def updateDays(assignments):
+    for a in assignments:
+        a.days = a.due - date.today()
+    return
+
+
+
+# date is date.(year, month, day)
+def main():
+    with open('assignments.json', 'r') as infile:
+        json_load = json.load(infile)
+    assignments = []
+    for item in json_load:
+        temp_date = date(2022, int(item['month']), int(item['day']))
+        assignments.append(Assignment(item['course'], item['description'], temp_date))
+    updateDays(assignments)
+    while True:
+        print("Main Menu:")
+        print("(1) Make assignment")
+        print("(2) Edit assignment")
+        print("(3) Print assignments")
+        print("(4) Delete Assignment")
+        print("(5) Exit")
+        mode = int(input("Mode: "))
+        if mode == 1:
+            assignments.append(makeAssignment())
+        elif mode == 2:
+            print("Here are the current assignments, which number assignment would you like to edit?")
+            printAssignments(assignments)
+            toEdit = int(input("\n")) - 1
+            while True:
+                if toEdit < 0 or toEdit > len(assignments):
+                    print("Invalid input of " + str(toEdit) + ". Please try again")
+                    toEdit = int(input("\n"))
+                else:
+                     break
+            assignments[toEdit].editAssignment()
+        elif mode == 3:
+            printAssignments(assignments)
+        elif mode == 4:
+            deleteAssignment(assignments)
+        else:
+            break
+    json_string = []
+    for a in assignments:
+        json_string.append(a.toJson())
+    toJson = json.dumps(json_string)
+    with open('assignments.json', 'w') as outfile:
+        outfile.write(toJson)
+
+
+
+main()
