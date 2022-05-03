@@ -88,14 +88,14 @@ def makeAssignment():
         if "y" in input_check or "Y" in input_check:
             break
     while True:
-		while True:
+        while True:
         		month = input("What month is it due?")
         		if isdigit(month):
         			break
-        while True:
-        	day = input("What day is it due?")
-        	if isdigit(day):
-        		break
+        	while True:
+        		day = input("What day is it due?")
+        		if isdigit(day):
+        			break
         print(
             "Your input is\tMonth: "
             + str(month)
